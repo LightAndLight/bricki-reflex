@@ -161,7 +161,7 @@ brickWrapper shouldHaltE widgetDyn cursorDyn attrDyn = do
 
   rsRef <- liftIO $ newIORef initialRS
 
-  let startOrSuspend :: These () () -> _ -> R.PushM t (Maybe (_, _))
+  let startOrSuspend :: These () () -> Maybe (Vty, IO ()) -> R.PushM t (Maybe (Vty, IO ()))
       startOrSuspend = \case
         This{} -> \_ -> do
           widgetStack  <- R.sample $ R.current widgetDyn
@@ -201,7 +201,7 @@ brickWrapper shouldHaltE widgetDyn cursorDyn attrDyn = do
   initStateDyn <- do
     let e1 = startupEvent <> restartEvent
         e2 = suspendEvent
-    R.foldDynM (liftIO .) Nothing
+    R.foldDynM _ Nothing
       $   align e1 (R.leftmost [e2 $> (), shouldHaltE])
       <&> startOrSuspend
 
