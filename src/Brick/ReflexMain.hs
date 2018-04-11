@@ -167,13 +167,13 @@ brickWrapper shouldHaltE widgetDyn cursorDyn attrDyn = do
     R.foldDynM id Nothing
       $   align e1 (R.leftmost [e2 $> (), shouldHaltE])
       <&> \case
-            This{} -> \_ -> liftIO $ do
-              vty <- liftIO $ do
-                x <- mkVty defaultConfig
-                return x
+            This{} -> \_ -> do -- liftIO $ do
               widgetStack  <- R.sample $ R.current widgetDyn
               chooseCursor <- R.sample $ R.current cursorDyn
               attrs        <- R.sample $ R.current attrDyn
+              vty <- liftIO $ do
+                x <- mkVty defaultConfig
+                return x
               liftIO $ do
                 renderState <- readIORef rsRef
                 (renderState', _) <-
