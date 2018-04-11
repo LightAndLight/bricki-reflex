@@ -191,7 +191,7 @@ brickWrapper shouldHaltE widgetDyn cursorDyn attrDyn = do
                           =<< (displayBounds $ outputIface vty)
                       _ -> eventH $ Just ev
               pumpTId <- liftIO $ forkIO $ loop
-              void $ forkIO $ void $ eventH $ Nothing
+              liftIO . void . forkIO . void $ eventH Nothing
               let stopper = do
                     killThread pumpTId
                     shutdown vty
