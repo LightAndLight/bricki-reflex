@@ -161,7 +161,7 @@ brickWrapper shouldHaltE widgetDyn cursorDyn attrDyn = do
 
   rsRef <- liftIO $ newIORef initialRS
 
-  let startOrSuspend :: These () () -> _ -> R.PushM t
+  let startOrSuspend :: These () () -> _ -> R.PushM t (Maybe (_, _))
       startOrSuspend = \case
         This{} -> \_ -> do
           widgetStack  <- R.sample $ R.current widgetDyn
