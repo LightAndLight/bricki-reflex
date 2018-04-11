@@ -201,7 +201,7 @@ brickWrapper shouldHaltE widgetDyn cursorDyn attrDyn = do
   initStateDyn <- do
     let e1 = startupEvent <> restartEvent
         e2 = suspendEvent
-    R.foldDynM _ Nothing
+    R.foldDynM id Nothing
       $   align e1 (R.leftmost [e2 $> (), shouldHaltE])
       <&> startOrSuspend
 
