@@ -159,6 +159,8 @@ brickWrapper shouldHaltE widgetDyn cursorDyn attrDyn = do
             $ ((io >>= resultH) `finally` restartH ())
         return resultEvent
 
+  rsRef <- liftIO $ newIORef initialRS
+
   initStateDyn <- do
     let e1 = startupEvent <> restartEvent
         e2 = suspendEvent
@@ -169,6 +171,15 @@ brickWrapper shouldHaltE widgetDyn cursorDyn attrDyn = do
               vty <- liftIO $ do
                 x <- mkVty defaultConfig
                 return x
+              widgetStack  <- R.sample $ R.current widgetDyn
+              chooseCursor <- R.sample $ R.current cursorDyn
+              attrs        <- R.sample $ R.current attrDyn
+              liftIO $ do
+                renderState <- readIORef rsRef
+                (renderState', _) <-
+                  render vty widgetStack chooseCursor attrs renderState
+                writeIORef rsRef renderState'
+              
               let loop = forever $ do
                     ev <- atomically
                       (readTChan $ _eventChannel $ inputIface vty)
@@ -210,8 +221,6 @@ brickWrapper shouldHaltE widgetDyn cursorDyn attrDyn = do
   --           ]
   -- 
   -- return ()
-
-  rsRef <- liftIO $ newIORef initialRS
 
   RH.performEvent_ $ shouldHaltE <&> \() -> liftIO $ void $ shutdownH ()
 
